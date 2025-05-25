@@ -5,11 +5,11 @@ from classes import Block
 # Classe de representação da Blockchain
 class Blockchain():
     def __init__(self, difficulty=4):
-        self.chain = [self.create_genesis_block()] # Cadeia de Blocos (com o bloco inicial)
+        self.chain = [self.__create_genesis_block()] # Cadeia de Blocos (com o bloco inicial)
         self.difficulty = difficulty
 
     # Criação do Bloco inicial da cadeia
-    def create_genesis_block(self):
+    def __create_genesis_block(self):
         return Block(0, "0", time.time(), "Genesis Block")
     
     # Retorna ultimo bloco na cadeia
@@ -22,7 +22,7 @@ class Blockchain():
     # Adiciona um bloco criado na cadeia com Hash
     def add_block(self, new_block: Block):
         new_block.previous_hash = self.get_latest_block().hash      # Adiciona o hash do bloco anterior ao novo bloco
-        new_block.mine_block(self.difficulty, threading.Event())    # Minera o bloco com dificuldade escolhida
+        new_block.mine_block(self.difficulty, threading.Event())    # Minera o bloco com dificuldade escolhida, utilizando threading.Event() como placeholder
         self.chain.append(new_block)                                # Adiciona o Bloco à cadeia
     
     # Verifica se os blocos e encadeamento estão válidos com seus respectivos hashs
