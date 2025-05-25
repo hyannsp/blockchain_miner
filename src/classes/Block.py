@@ -1,14 +1,14 @@
 import hashlib
-import time
 
+# Classe de representação de um bloco da blockchain
 class Block:
     def __init__(self, index, previous_hash, timestamp, data, nonce=0):
-        self.index = index
-        self.previous_hash = previous_hash
-        self.timestamp = timestamp
-        self.data = data
-        self.nonce = nonce
-        self.hash = self.calculate_hash()
+        self.index = index                  # Posição na blockchain
+        self.previous_hash = previous_hash  # Hash do bloco anterior
+        self.timestamp = timestamp          # data e hora da criação do bloco
+        self.data = data                    # Dados armazenados
+        self.nonce = nonce                  # Número auxiliar para encontrar o hash
+        self.hash = self.calculate_hash()   # Hash do Bloco
 
     # Funcao que calcula o hash do bloco
     def calculate_hash(self):
@@ -17,7 +17,7 @@ class Block:
     
     # Funcao que executa a prova de trabalho (mineracao)
     def mine_block(self, difficulty, stop_event):
-        prefix = '0' * difficulty
+        prefix = '0' * difficulty # Define quantos 0's o hash começa
         while not self.hash.startswith(prefix):
             if stop_event.is_set():
                 return
