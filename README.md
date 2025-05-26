@@ -229,20 +229,23 @@ def concurrent_mining(fakechain: Blockchain, new_block: Block, num_threads):
     print(f"Mineracao com {num_threads} threads concluida em {elapsed_time:.2f} segundos.\n")
     return elapsed_time
 ```
-Essa função realiza a mineração de maneira Concorrente, onde uma certa quantidade de Threads são selecionadas e passadas para realizar a função `mine()`, realizando os seguintes passos a seguir:
-1. Cada Thread cria uma cópia local do bloco passado para mineração;
-2. A primeira Thread que encontrar o hash válido, salva o resultado.
-3. Todas as outras Thread param por meipo da `stop_event.set()`
+Essa função realiza a mineração de maneira Concorrente, onde multiplas *Threads* são passadas para realizar a função `mine()`, realizando os seguintes passos a seguir:
+1. Cada *Thread* cria uma cópia local do bloco passado para mineração;
+2. A primeira *Thread* que encontrar o hash válido, salva o resultado.
+3. Todas as outras *Thread* param por meio da `stop_event.set()`  
+4. O Bloco é salvo na blockchain e retorna o tempo gasto para finalizar a função.
+
+Parando todas as *Threads* evita que alguma minere o mesmo bloco e o insira na cadeia, evita duplicidade dos blocos. É utilido a lista `minered_blocks` para que cada Thread sobrescreva o mesmo item, a array de dados, evitando a **condição de corrida** que ocorre com a sobrescrita de dados entre as *Threads*.
 
 ### Função: `blockchain_miner`
 ```python
-def blockchain_miner():
+def blockchain_miner(n_threads):
     concurrent_times = [] 
     sequential_times = []
 
     print("===== Mineração com Multiplas Threads =====\n")
     for i, count in enumerate(n_threads):
-        latest_block: Block = concurret_chain.get_latest_block()
+        latest_block: Block = concurret_chain.get_latest_block() 
         new_block = Block(
             index=i+1, 
             previous_hash = latest_block.hash, 
@@ -265,7 +268,11 @@ def blockchain_miner():
         sequential_times.append(elapsed_time)
     return concurrent_times, sequential_times
 ```
+Função que chama as funções de mineração de bloco. Essa função cria duas listas para receberem o tempo de mineração de cada bloco, em seguida percorre essa lista **n** vezes.
+- **Concorrente**: Dependendo do tamanho da lista de *Threads* que serão utilizados, para cada item da lista `n_threads` é minerado um bloco com a quantidade de *Threads* no índice atual da lista e adicionando o tempo total da execução da função na lista de tempo.
+- **Sequencial**: Faz o mesmo que a função concorrente, mas sem implementar a utilização da quantidade de *Threads* escolhida, fazendo a mineração em *single-thread* e retornando o os tempos.
 
+Ao final da função, ambas as arrays de tempo são retornadas.
 
 ### Função: `graph_view`
 ```python
@@ -310,6 +317,11 @@ def graph_view(concurrent_times, sequential_times, n_threads):
     plt.savefig('./output/comparativo_mineração.png')
     return
 ```
+Essa função utiliza a biblioteca `Matplotlib` para gerar os gráficos, criando um gráfico especifico para a mineração concorrente com Tempo x Thread, utilizando as arrays de tempo para inserir os dados no gráfico. O segundo gráfico é uma comparação de tempo acumulado ao longo da mineração dos blocos, entre a concorrente e a Sequencial.
+<p align="center">
+  <img src="./output/concorrente_por_thread.png" width="45%" />
+  <img src="./output/comparativo_mineração.png" width="45%" />
+</p>
 
 ### Função Principal
 ```python
@@ -334,3 +346,57 @@ if __name__ == "__main__":
     print("\nVisualização dos Gráficos disponíveis em ./output/")
     graph_view(concurrent_times, sequential_times, n_threads)
 ```
+O código principal reune todas as funcionalidades criadas, aplicando todo esse sistema em poucas linhas.
+1. Seleciona o número de dificuldade e quantidade de *Threads* que serão testadas.
+2. Cria uma blockchain para blocos minerados em sequencial e uma blockchain para códigos minerados em concorrência.
+3. Realiza a mineração dos blocos e recupera a lista de tempos.
+4. Utiliza a função de validação em ambas as blockchains criadas e faz um comparativo de tempo total das execuções.
+5. Finalmente, gera os gráficos e os salva na pasta `./output`
+
+Além das imagens de gráficos já expostas neste arquivo, o terminal exibe o Nonce, Hash gerado, quantidade de Threads (se houver) e o tempo total de cada bloco minerado, assim como a resposta das validações:
+```bash
+===== Mineração com Multiplas Threads =====
+
+Bloco minerado com nonce 886634: 000001f3699440f5dfafa8582e8fd51125b009ef105adc29f8637d63cee47a4e
+Mineracao com 1 threads concluida em 1.04 segundos.
+
+Bloco minerado com nonce 41974: 00000f6bda3946430993ddfc0b1f044fface10f0c004bf291bbd25ef820db29a
+Mineracao com 2 threads concluida em 0.10 segundos.
+
+Bloco minerado com nonce 11226: 000005eee1caa7b9f5922a06f1a04732babeb14a9d9faeeff937027055cd3016
+Mineracao com 4 threads concluida em 0.02 segundos.
+
+Bloco minerado com nonce 186148: 0000071a9d99bce5aee0b761b9cf144ece01e039d4a58db47d74bd84d1369f11
+Mineracao com 8 threads concluida em 0.78 segundos.
+
+===== Mineração Sequencial =====
+
+Bloco minerado com nonce 63083: 00000550ce29f0b3638006981e80b2106ac245a0bc56eec3c8aeef53814a83a5
+Mineracao sequencial concluida em 0.07 segundos.
+
+Bloco minerado com nonce 997361: 000005a50683331a912da880ffc5c5ac218e675792c79fd6c11235e1da25dcf1
+Mineracao sequencial concluida em 1.20 segundos.
+
+Bloco minerado com nonce 1180821: 000004906b572ed1ccded61cda708578eb3ca3bf8928c1ff61280118bef72492
+Mineracao sequencial concluida em 1.39 segundos.
+
+Bloco minerado com nonce 41789: 00000959e847dbfc9533f3239283b873bc023604f364b13e6173d97d1d5ec155
+Mineracao sequencial concluida em 0.05 segundos.
+
+
+Validação das blockchains:
+Concorrente válida? True
+Sequencial válida? True
+
+Comparativo entre as minerações:
+Concorrente: [1.0445425510406494, 0.10068631172180176, 0.02424788475036621, 0.7825806140899658] - Total : 1.95
+Sequencial: [0.0731818675994873, 1.1976728439331055, 1.3906397819519043, 0.04812932014465332] - Total : 2.71
+
+Visualização dos Gráficos disponíveis em ./output/
+```
+
+# Respostas:
+## 1. O que impede dois blocos de serem minerados simultaneamente?
+
+
+## 2. Como o hash e o nonce garantem a dificuldade da mineração?

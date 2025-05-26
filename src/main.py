@@ -11,7 +11,7 @@ def sequential_mining(fakechain: Blockchain, new_block: Block):
     start_time = time.time()
     fakechain.add_block(new_block)
     elapsed_time = time.time() - start_time
-    print(f"\nMineracao sequencial concluida em {elapsed_time:.2f} segundos.")
+    print(f"Mineracao sequencial concluida em {elapsed_time:.2f} segundos.\n")
     return elapsed_time
 
 def concurrent_mining(fakechain: Blockchain, new_block: Block, num_threads):
@@ -51,7 +51,7 @@ def concurrent_mining(fakechain: Blockchain, new_block: Block, num_threads):
     print(f"Mineracao com {num_threads} threads concluida em {elapsed_time:.2f} segundos.\n")
     return elapsed_time
 
-def blockchain_miner():
+def blockchain_miner(n_threads):
     concurrent_times = [] 
     sequential_times = []
 
@@ -136,7 +136,7 @@ if __name__ == "__main__":
     concurret_chain: Blockchain = create_blockchain(difficulty)
     sequential_chain: Blockchain = create_blockchain(difficulty)
 
-    concurrent_times, sequential_times = blockchain_miner()
+    concurrent_times, sequential_times = blockchain_miner(n_threads)
 
     print("\nValidação das blockchains:")
     print(f"Concorrente válida? {concurret_chain.validating_blockchain()}")
