@@ -144,7 +144,7 @@ def add_block(self, new_block: Block):
     self.chain.append(new_block)
 ```
 Esse método visa adicionar um novo bloco à cadeia, adicionando o hash do bloco anterior como o `previous_hash` e chamando a função de mineração do bloco, quando finalizada a mineração, adiciona o bloco novo à cadeia.
->[!]NOTE
+>[!NOTE]
 >
 > O `threading.Event()` é utilizado como placeholder para chamar a função `mine_block`, não influenciando no código sequencial!
 
