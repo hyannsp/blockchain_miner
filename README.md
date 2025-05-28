@@ -319,8 +319,8 @@ def graph_view(concurrent_times, sequential_times, n_threads):
 ```
 Essa função utiliza a biblioteca `Matplotlib` para gerar os gráficos, criando um gráfico especifico para a mineração concorrente com Tempo x Thread, utilizando as arrays de tempo para inserir os dados no gráfico. O segundo gráfico é uma comparação de tempo acumulado ao longo da mineração dos blocos, entre a concorrente e a Sequencial.
 <p align="center">
-  <img src="./output/concorrente_por_thread.png" width="45%" />
-  <img src="./output/comparativo_mineração.png" width="45%" />
+  <img src="./output/concorrente_por_thread.png" width="49%" />
+  <img src="./output/comparativo_mineração.png" width="49%" />
 </p>
 
 ### Função Principal
@@ -397,6 +397,15 @@ Visualização dos Gráficos disponíveis em ./output/
 
 # Respostas:
 ## 1. O que impede dois blocos de serem minerados simultaneamente?
+Não são impedidos de serem minerados simultaneamente, mas de continuar com uma blockchain com dois blocos que representam o mesmo dado. No código concorrente essa solução é dada pelo `stop_event()`, que consiste em parar as outras *Threads* de minerarem um bloco quando alguma delas encontrar e inserir na blockchain. 
 
+Na prática, quando dois ou mais nós minerarem um bloco ao mesmo tempo, apenas um dos blocos será mantido na cadeia após a adição de novos blocos, descartando o outro como *fork*, como demonstrado na figura a seguir:
+<p align="center">
+  <img src="./images/image.png" width="70%" />
+</p>
 
 ## 2. Como o hash e o nonce garantem a dificuldade da mineração?
+A dificuldade é controlada pela quantidade de 0's prefixados no hash necessário. Ou seja, quando temos uma `difficulty = 5`, devemos encontrar um hash começado com `00000`. 
+  O hash é gerado por uma função que retorna um heaxdecimal pseudoaleatório, não podendo ser previsto, então a probabilidade de cair um número com a quantidade de zeros especificadas no começo vai diminuindo à medida que é essa dificuldade vai aumentando.
+
+O Nonce é o número incremental que vai ser adicionado com o índice, hash anterior, timestamp e dado como string ser aplicado à função em busca do hash que será alocado ao bloco, visto isso cada vez que um nonce é alterado um novo hash é gerado, repetindo esse processo até encontrar um hash com a dificuldade exigida, ou nesse caso com seu começo igual à `00000`.
